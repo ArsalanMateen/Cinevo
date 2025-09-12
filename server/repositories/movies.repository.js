@@ -28,7 +28,8 @@ export default class MoviesRepository {
     try {
       cursor = movies
         .find(query)
-        .limit(moviesPerPage);
+        .limit(moviesPerPage)
+        .skip(moviesPerPage * page);
 
       const [moviesList, totalMovies] = await Promise.all([
         cursor.toArray(),
