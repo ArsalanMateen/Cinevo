@@ -19,6 +19,15 @@ export default class MoviesRepository {
   static async getMovies({ filters, page, moviesPerPage, sort }) {
     let query = {};
 
+    if (filters) {
+      if (filters.hasOwnProperty("title")) {
+        query.title = {
+          $regex: filters["title"],
+          $options: "i", // case-insensitive flag
+        };
+      }
+    }
+
     let cursor;
     try {
       cursor = movies
