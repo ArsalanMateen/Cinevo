@@ -24,6 +24,15 @@ export default class MoviesRepository {
   } = {}) {
     let query = {};
 
+    if (filters) {
+      if (filters.hasOwnProperty("title")) {
+        query.title = {
+          $regex: filters["title"],
+          $options: "i", // case-insensitive flag
+        };
+      }
+    }
+
     let cursor;
     try {
       cursor = movies

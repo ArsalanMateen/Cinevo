@@ -10,7 +10,13 @@ export default class MoviesController {
 
     page = Number.isInteger(page) && page >= 0 ? page : 0;
 
+    let filters = {};
+    if (req.query.title) {
+      filters.title = req.query.title;
+    }
+
     const { moviesList, totalMovies } = await MoviesRepository.getMovies({
+      filters,
       page,
       moviesPerPage,
     });
@@ -18,6 +24,7 @@ export default class MoviesController {
     let response = {
       moviesList,
       page,
+      filters,
       moviesPerPage,
       totalMovies,
     };
