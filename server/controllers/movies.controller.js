@@ -11,6 +11,11 @@ export default class MoviesController {
     page = Number.isInteger(page) && page >= 0 ? page : 0;
 
     let filters = {};
+
+    if (req.query.genre) {
+      filters.genre = req.query.genre;
+    }
+
     if (req.query.title) {
       filters.title = req.query.title;
     }
