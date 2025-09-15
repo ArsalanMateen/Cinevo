@@ -20,10 +20,13 @@ export default class MoviesController {
       filters.title = req.query.title;
     }
 
+    const sort = req.query.sort || "year:desc";
+
     const { moviesList, totalMovies } = await MoviesRepository.getMovies({
       filters,
       page,
       moviesPerPage,
+      sort,
     });
 
     let response = {

@@ -1,17 +1,17 @@
-import mongodb from "mongodb";
+import { ObjectId } from "mongodb";
 
-const ObjectId = mongodb.ObjectId;
-
-let movies; // to store the reference to the movies collection in the database
+let movies;
 
 export default class MoviesRepository {
   static async injectDB(conn) {
-    if (movies) return;
+    if (movies) {
+      return;
+    }
     try {
-      movies = await conn.db(process.env.MONGODB_NS).collection("movies");
+      movies = await conn.db(process.env.MOVIES_NS).collection("movies");
     } catch (e) {
       console.error(
-        `Unable to connect to the MongoDB movies collection. Please verify the database name and connection configuration: ${e}`,
+        `Unable to establish a collection handle in moviesRepository: ${e}`,
       );
     }
   }
@@ -20,38 +20,50 @@ export default class MoviesRepository {
     filters = null,
     page = 0,
     moviesPerPage = 20,
-    sort = null,
+    sort = "year:desc",
   } = {}) {
     let query = {};
 
     if (filters) {
-      if (filters.hasOwnProperty("title")) {
-        query.title = {
-          $regex: filters["title"],
-          $options: "i", // case-insensitive flag
-        };
-      }
-      if (filters.hasOwnProperty("genre")) {
-        query.genres = {
-          $eq: filters["genre"], // $eq (equality operatory): checks if the an item equals the given value
-        };
+      if ("title" in filters) {
+        query = { $text: { $search: filters["title"] } };
+      } else if ("genre" in filters) {
+        query = { genres: { $in: [filters["genre"]] } };
       }
     }
+
+    if (sort === "rating:desc" || sort === "rating:asc") {
+      query["imdb.rating"] = { $type: "number" };
+    } else if (sort === "awards:desc") {
+      query["awards.wins"] = { $gt: 0 };
+    } else if (sort === "comments:desc") {
+      query["num_mflix_comments"] = { $gt: 0 };
+    }
+
+    const sortOptions = {
+      "year:desc": { year: -1 },
+      "year:asc": { year: 1 },
+      "rating:desc": { "imdb.rating": -1 },
+      "rating:asc": { "imdb.rating": 1 },
+      "awards:desc": { "awards.wins": -1, "imdb.rating": -1 },
+      "comments:desc": { "num_mflix_comments": -1, "imdb.rating": -1 },
+    };
+
+    const sortCriteria = sortOptions[sort] ?? sortOptions["year:desc"];
 
     let cursor;
     try {
       cursor = movies
         .find(query)
+        .sort(sortCriteria)
         .limit(moviesPerPage)
         .skip(moviesPerPage * page);
 
-      const [moviesList, totalMovies] = await Promise.all([
-        cursor.toArray(),
-        movies.countDocuments(query),
-      ]);
+      const moviesList = await cursor.toArray();
+      const totalMovies = await movies.countDocuments(query);
       return { moviesList, totalMovies };
     } catch (e) {
-      console.error(`Unable to retrieve movies from the database: ${e}`);
+      console.error(`Unable to issue find command, ${e}`);
       return { moviesList: [], totalMovies: 0 };
     }
   }
