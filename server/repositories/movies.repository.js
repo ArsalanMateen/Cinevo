@@ -67,4 +67,15 @@ export default class MoviesRepository {
       return { moviesList: [], totalMovies: 0 };
     }
   }
+
+  static async getGenres() {
+    let genres = [];
+    try {
+      genres = await movies.distinct("genres");
+      return genres.filter(Boolean).sort();
+    } catch (e) {
+      console.error(`Unable to get genres, ${e}`);
+      throw e;
+    }
+  }
 }
