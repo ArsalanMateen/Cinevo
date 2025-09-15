@@ -31,6 +31,11 @@ export default class MoviesRepository {
           $options: "i", // case-insensitive flag
         };
       }
+      if (filters.hasOwnProperty("genre")) {
+        query.genres = {
+          $eq: filters["genre"], // $eq (equality operatory): checks if the an item equals the given value
+        };
+      }
     }
 
     let cursor;
