@@ -78,4 +78,19 @@ export default class MoviesRepository {
       throw e;
     }
   }
+
+  static async getMovieById(id) {
+    if (!ObjectId.isValid(id)) {
+      return null;
+    }
+
+    try {
+      return await movies.findOne({ _id: new ObjectId(id) });
+    } catch (e) {
+      console.error(
+        `Unable to retrieve movie with id: "${id}" from the database: ${e}`,
+      );
+      throw e;
+    }
+  }
 }
