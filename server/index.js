@@ -2,6 +2,7 @@ import app from "./app.js";
 import mongodb from "mongodb";
 import dotenv from "dotenv";
 import MoviesRepository from "./repositories/movies.repository.js";
+import UsersRepository from "./repositories/users.repository.js";
 
 async function main() {
   dotenv.config();
@@ -12,6 +13,7 @@ async function main() {
     await client.connect();
 
     await MoviesRepository.injectDB(client);
+    await UsersRepository.injectDB(client);
 
     app.listen(port, () => {
       console.log(`Server is running on port: ${port}`);
