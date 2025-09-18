@@ -43,4 +43,31 @@ export default class UsersRepository {
       throw e;
     }
   }
+
+  static async login(email, password) {
+    try {
+      const user = await users.findOne({ email });
+
+      if (!user) {
+        return { error: "Invalid email or password" };
+      }
+
+      const isMatch = await bcrypt.compare(password, user.password);
+
+      if (!isMatch) {
+        return { error: "Invalid email or password" };
+      }
+
+      return {
+        user: {
+          _id: user._id.toString(),
+          name: user.name,
+          email: user.email,
+        },
+      };
+    } catch (e) {
+      console.error(`Error during user login: ${e}`);
+      throw e;
+    }
+  }
 }

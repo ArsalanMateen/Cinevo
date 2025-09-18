@@ -49,4 +49,28 @@ export default class UsersController {
       res.status(500).json({ error: e.message });
     }
   }
+
+  static async apiLogin(req, res, next) {
+    try {
+      const { email, password } = req.body;
+
+      if (!validate(res, { email, password })) return;
+
+      const result = await UsersRepository.login(
+        email.trim().toLowerCase(),
+        password,
+      );
+
+      if (result.error) {
+        return res.status(401).json({ error: result.error });
+      }
+
+      res.json({
+        status: "success",
+        user: result.user,
+      });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  }
 }
