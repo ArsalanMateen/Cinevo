@@ -5,13 +5,10 @@ let reviews;
 
 export default class ReviewsRepository {
   static async injectDB(conn) {
-    if (reviews) {
-      return;
-    }
+    if (reviews) return;
+
     try {
-      reviews = await conn
-        .db(process.env.CINEVO_NS)
-        .collection("reviews");
+      reviews = await conn.db(process.env.MONGODB_NS).collection("reviews");
     } catch (e) {
       console.error(
         `Unable to connect to the MongoDB reviews collection. Please verify the database name and connection configuration: ${e}`,
@@ -19,23 +16,35 @@ export default class ReviewsRepository {
     }
   }
 
-  static async addReview(movieId, user, text, date) {
+  static async addReview(movieId, user, review, date) {
     try {
       const reviewDoc = {
         name: user.name,
         email: user.email,
+        user_id: user.user_id,
         movie_id: new ObjectId(movieId),
-        text: text,
+        review: review,
         date: date,
       };
-
-      if (user._id) {
-        reviewDoc.user_id = user._id;
-      }
 
       return await reviews.insertOne(reviewDoc);
     } catch (e) {
       console.error(`Unable to post review: ${e}`);
+      throw e;
+    }
+  }
+
+  static async updateReview(reviewId, userId, review, date) {
+    try {
+      return await reviews.updateOne(
+        {
+          _id: new ObjectId(reviewId),
+          user_id: userId,
+        },
+        { $set: { review: review, date: date } },
+      );
+    } catch (e) {
+      console.error(`Unable to update review: ${e}`);
       throw e;
     }
   }

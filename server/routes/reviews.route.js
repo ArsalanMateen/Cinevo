@@ -5,6 +5,7 @@ const router = express.Router();
 
 router
   .route("/")
-  .post(ReviewsController.apiPostReview);
+  .post(ReviewsController.apiPostReview)
+  .put(ReviewsController.apiUpdateReview);
 
 export default router;
