@@ -44,4 +44,25 @@ export default class ReviewsController {
       res.status(500).json({ error: e.message });
     }
   }
+
+  static async apiDeleteReview(req, res, next) {
+    try {
+      const { review_id, user_id } = req.body;
+
+      const ReviewResponse = await ReviewsRepository.deleteReview(
+        review_id,
+        user_id,
+      );
+
+      if (ReviewResponse.deletedCount === 0) {
+        throw new Error(
+          "Unable to delete review. User may not be original poster",
+        );
+      }
+
+      res.json({ status: "success" });
+    } catch (e) {
+      res.status(500).json({ error: e.message });
+    }
+  }
 }
