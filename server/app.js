@@ -7,6 +7,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get("/health", (req, res) => {
+  res.status(200).json({ status: "Working" });
+});
+
 app.use("/api/v1/movies", movies);
 
 // catch-all route handler for any requests to an unknown route
