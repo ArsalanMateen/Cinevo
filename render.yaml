@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: cinevo
+    runtime: node
+    rootDir: server
+    plan: free
+    buildCommand: npm install
+    startCommand: node index.js
+    envVars:
+      - key: MONGODB_NS
+        value: sample_mflix
+      - key: MONGODB_URI
+        sync: false
