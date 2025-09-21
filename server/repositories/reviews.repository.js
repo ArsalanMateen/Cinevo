@@ -48,4 +48,16 @@ export default class ReviewsRepository {
       throw e;
     }
   }
+
+  static async deleteReview(reviewId, userId) {
+    try {
+      return await reviews.deleteOne({
+        _id: new ObjectId(reviewId),
+        user_id: userId,
+      });
+    } catch (e) {
+      console.error(`Unable to delete review: ${e}`);
+      throw e;
+    }
+  }
 }
