@@ -1,17 +1,17 @@
-import { ObjectId } from "mongodb";
+import mongodb from "mongodb";
 
-let movies;
+const ObjectId = mongodb.ObjectId;
+
+let movies; // to store the reference to the movies collection in the database
 
 export default class MoviesRepository {
   static async injectDB(conn) {
-    if (movies) {
-      return;
-    }
+    if (movies) return;
     try {
-      movies = await conn.db(process.env.MOVIES_NS).collection("movies");
+      movies = await conn.db(process.env.MONGODB_NS).collection("movies");
     } catch (e) {
       console.error(
-        `Unable to establish a collection handle in moviesRepository: ${e}`,
+        `Unable to connect to the MongoDB movies collection. Please verify the database name and connection configuration: ${e}`,
       );
     }
   }
@@ -25,10 +25,16 @@ export default class MoviesRepository {
     let query = {};
 
     if (filters) {
-      if ("title" in filters) {
-        query = { $text: { $search: filters["title"] } };
-      } else if ("genre" in filters) {
-        query = { genres: { $in: [filters["genre"]] } };
+      if (filters.hasOwnProperty("title")) {
+        query.title = {
+          $regex: filters["title"],
+          $options: "i", // case-insensitive flag
+        };
+      }
+      if (filters.hasOwnProperty("genre")) {
+        query.genres = {
+          $eq: filters["genre"], // $eq (equality operatory): checks if the an item equals the given value
+        };
       }
     }
 
@@ -51,7 +57,7 @@ export default class MoviesRepository {
 
     const sortCriteria = sortOptions[sort] ?? sortOptions["year:desc"];
 
-    let cursor;
+    let cursor; // to store the pointer to the query result set
     try {
       cursor = movies
         .find(query)
@@ -59,37 +65,55 @@ export default class MoviesRepository {
         .limit(moviesPerPage)
         .skip(moviesPerPage * page);
 
-      const moviesList = await cursor.toArray();
-      const totalMovies = await movies.countDocuments(query);
+      const [moviesList, totalMovies] = await Promise.all([
+        cursor.toArray(),
+        movies.countDocuments(query),
+      ]);
       return { moviesList, totalMovies };
     } catch (e) {
-      console.error(`Unable to issue find command, ${e}`);
+      console.error(`Unable to retrieve movies from the database: ${e}`);
       return { moviesList: [], totalMovies: 0 };
     }
   }
 
-  static async getGenres() {
-    let genres = [];
-    try {
-      genres = await movies.distinct("genres");
-      return genres.filter(Boolean).sort();
-    } catch (e) {
-      console.error(`Unable to get genres, ${e}`);
-      throw e;
-    }
-  }
-
   static async getMovieById(id) {
+    // check if the provided id is a valid ObjectId before proceeding with the query
     if (!ObjectId.isValid(id)) {
       return null;
     }
 
     try {
-      return await movies.findOne({ _id: new ObjectId(id) });
+      return await movies
+        .aggregate([
+          {
+            $match: {
+              _id: new ObjectId(id),
+            },
+          },
+          {
+            $lookup: {
+              from: "reviews",
+              localField: "_id",
+              foreignField: "movie_id",
+              as: "reviews",
+            },
+          },
+        ])
+        .next(); // return the result of the aggregation pipeline as single object (or null if no matching document is found)
     } catch (e) {
       console.error(
         `Unable to retrieve movie with id: "${id}" from the database: ${e}`,
       );
+      throw e;
+    }
+  }
+
+  static async getGenres() {
+    try {
+      const genres = await movies.distinct("genres");
+      return genres.filter(Boolean).sort(); // filter out any null or undefined values and sort the genres alphabetically
+    } catch (e) {
+      console.error(`Unable to retrieve movie genres from the database: ${e}`);
       throw e;
     }
   }
