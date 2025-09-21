@@ -5,6 +5,9 @@ import MoviesRepository from "./repositories/movies.repository.js";
 import ReviewsRepository from "./repositories/reviews.repository.js";
 import UsersRepository from "./repositories/users.repository.js";
 
+import dns from "node:dns/promises";
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
+
 async function main() {
   dotenv.config();
   const client = new mongodb.MongoClient(process.env.MONGODB_URI);
