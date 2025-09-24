@@ -1,24 +1,16 @@
 import React from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
+import "./styles/main.css";
+import styles from "./App.module.css";
 
 import MoviesList from "./pages/MoviesList.jsx";
 
 function App() {
-  const location = useLocation();
-
   return (
-    <div>
-      <div>
+    <div className={styles.app}>
+      <div className={styles.appMain}>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <Navigate
-                to={{ pathname: "/movies", search: location.search }}
-                replace
-              />
-            }
-          />
+          <Route path="/" element={<Navigate to="/movies" replace />} />
           <Route path="/movies" element={<MoviesList />} />
         </Routes>
       </div>
