@@ -1,0 +1,47 @@
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 52px;
+  position: relative;
+}
+
+.headerContent {
+  flex: 1;
+}
+
+.headerTitle {
+  font-size: clamp(1.875rem, calc(1.47rem + 1.69vw), 3rem);
+  font-weight: 700;
+  color: var(--color-text);
+  margin-bottom: 10px;
+}
+
+.headerSubtitle {
+  color: var(--color-text-muted);
+  font-size: 1rem;
+}
+
+.headerIllustration {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: clamp(325px, calc(-0.4464rem + 33.4821vw), 475px);
+  height: auto;
+  flex-shrink: 0;
+  z-index: -1;
+}
+
+.resultsInfo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.resultsText {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}
