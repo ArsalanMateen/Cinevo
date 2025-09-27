@@ -1,9 +1,16 @@
 :root {
   --color-primary: #6c5ce7;
   --color-primary-hover: #5a4bd1;
+  --color-star: #f5c518;
 
   --color-bg: #0d1117;
+
+  --color-border: #30363d;
+
   --color-text: #e6edf3;
+  --color-text-muted: #8b949e;
+  --color-text-dimmed: #6e7681;
 
   --transition-fast: 0.15s ease;
+  --transition-med: 0.25s ease;
 }
