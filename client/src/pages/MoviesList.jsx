@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 
+import { Star } from "lucide-react";
+
 import MovieDataService from "../services/movies.js";
 import illustration from "../assets/images/illustration.png";
 import styles from "./MoviesList.module.css";
@@ -57,7 +59,42 @@ const MoviesList = () => {
         </span>
       </div>
 
-      <ul>{movies.map((movie) => <li key={movie._id}>{movie.title}</li>)}</ul>
+      <div className={styles.grid}>
+        {movies.map((movie) => (
+          <div className={styles.card} key={movie._id}>
+            <div className={styles.cardLink}>
+              <div className={styles.cardBody}>
+                <h5 className={styles.movieTitle}>{movie.title}</h5>
+                <div className={styles.movieMeta}>
+                  <span className={styles.movieYear}>{movie.year}</span>
+                </div>
+                {movie.genres && (
+                  <div className={styles.movieGenres}>
+                    {movie.genres.join(", ")}
+                  </div>
+                )}
+                <p className={styles.moviePlot}>
+                  {movie.plot || "No plot available."}
+                </p>
+                {movie.imdb && movie.imdb.rating > 0 && (
+                  <div className={styles.rating}>
+                    <Star
+                      size={14}
+                      className={styles.ratingStar}
+                      fill="var(--color-star)"
+                      color="var(--color-star)"
+                    />
+                    <span className={styles.ratingValue}>
+                      {movie.imdb.rating}
+                    </span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+
     </div>
   );
 };
