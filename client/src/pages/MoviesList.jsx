@@ -4,6 +4,7 @@ import { Star } from "lucide-react";
 
 import MovieDataService from "../services/movies.js";
 import illustration from "../assets/images/illustration.png";
+import noMoviePoster from "../assets/images/poster.png";
 import styles from "./MoviesList.module.css";
 
 const MoviesList = () => {
@@ -63,6 +64,17 @@ const MoviesList = () => {
         {movies.map((movie) => (
           <div className={styles.card} key={movie._id}>
             <div className={styles.cardLink}>
+              <div className={styles.posterWrapper}>
+                <img
+                  className={styles.poster}
+                  src={movie.poster || noMoviePoster}
+                  alt={movie.title}
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = noMoviePoster;
+                  }}
+                />
+              </div>
               <div className={styles.cardBody}>
                 <h5 className={styles.movieTitle}>{movie.title}</h5>
                 <div className={styles.movieMeta}>
