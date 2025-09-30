@@ -1,6 +1,7 @@
 :root {
   --color-primary: #6c5ce7;
   --color-primary-hover: #5a4bd1;
+  --color-primary-muted: rgba(108, 92, 231, 0.18);
   --color-star: #f5c518;
 
   --color-bg: #0d1117;
