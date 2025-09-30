@@ -10,6 +10,14 @@ class MovieDataService {
     }
     return axios.get(url);
   }
+
+  find(query, by, page, moviesPerPage, sort) {
+    let url = `${API}/api/v1/movies?${by}=${encodeURIComponent(query)}&page=${page}&moviesPerPage=${moviesPerPage}`;
+    if (sort) {
+      url += `&sort=${sort}`;
+    }
+    return axios.get(url);
+  }
 }
 
 const movieDataService = new MovieDataService();
