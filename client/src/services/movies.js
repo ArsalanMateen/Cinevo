@@ -10,6 +10,18 @@ class MovieDataService {
     }
     return axios.get(url);
   }
+
+  find(query, by = "title", page = 0, moviesPerPage = 20, sort = null) {
+    let url = `${API}/api/v1/movies?${by}=${encodeURIComponent(query)}&page=${page}&moviesPerPage=${moviesPerPage}`;
+    if (sort) {
+      url += `&sort=${sort}`;
+    }
+    return axios.get(url);
+  }
+
+  getGenres() {
+    return axios.get(`${API}/api/v1/movies/genres`);
+  }
 }
 
 const movieDataService = new MovieDataService();
