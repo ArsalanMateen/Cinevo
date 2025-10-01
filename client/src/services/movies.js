@@ -18,6 +18,10 @@ class MovieDataService {
     }
     return axios.get(url);
   }
+
+  getGenres() {
+    return axios.get(`${API}/api/v1/movies/genres`);
+  }
 }
 
 const movieDataService = new MovieDataService();

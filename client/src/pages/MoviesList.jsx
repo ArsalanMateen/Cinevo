@@ -10,18 +10,30 @@ import styles from "./MoviesList.module.css";
 const MoviesList = () => {
 
   const sort = "year:desc";
+  const [searchGenre, setSearchGenre] = useState("All Genres");
   const [submittedTitle, setSubmittedTitle] = useState("");
   const currentPage = 0;
 
   const [movies, setMovies] = useState([]);
   const [searchTitle, setSearchTitle] = useState(submittedTitle);
-
+  const [genres, setGenres] = useState(["All Genres"]);
   const [totalResults, setTotalResults] = useState(0);
   const moviesPerPage = 20;
 
   useEffect(() => {
     document.title = "Cinevo";
+    retrieveGenres();
   }, []);
+
+  const retrieveGenres = () => {
+    MovieDataService.getGenres()
+      .then((response) => {
+        setGenres(["All Genres"].concat(response?.data || []));
+      })
+      .catch((e) => {
+        console.error("Error retrieving genres:", e);
+      });
+  };
 
   useEffect(() => {
     setSearchTitle(submittedTitle);
@@ -53,7 +65,9 @@ const MoviesList = () => {
   );
 
   useEffect(() => {
-    if (submittedTitle) {
+    if (searchGenre !== "All Genres") {
+      searchMovies(searchGenre, "genre");
+    } else if (submittedTitle) {
       searchMovies(submittedTitle, "title");
     } else {
       retrieveMovies();
@@ -62,6 +76,7 @@ const MoviesList = () => {
     currentPage,
     sort,
     moviesPerPage,
+    searchGenre,
     submittedTitle,
     retrieveMovies,
     searchMovies,
@@ -70,10 +85,18 @@ const MoviesList = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setSubmittedTitle(searchTitle.trim());
+    setSearchGenre("All Genres");
   };
 
   const handleClearSearch = () => {
     setSearchTitle("");
+    setSubmittedTitle("");
+  };
+
+  const handleGenreChange = (e) => {
+    const newGenre = e.target.value;
+    setSearchTitle("");
+    setSearchGenre(newGenre);
     setSubmittedTitle("");
   };
 
@@ -131,6 +154,21 @@ const MoviesList = () => {
                 </button>
               </div>
             </form>
+          </div>
+
+          <div className={styles.searchGroup}>
+            <label className={styles.searchLabel}>Genre</label>
+            <select
+              className={styles.searchSelect}
+              value={searchGenre}
+              onChange={handleGenreChange}
+            >
+              {genres.map((genre, i) => (
+                <option key={i} value={genre}>
+                  {genre}
+                </option>
+              ))}
+            </select>
           </div>
 
         </div>
