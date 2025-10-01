@@ -9,7 +9,7 @@ import styles from "./MoviesList.module.css";
 
 const MoviesList = () => {
 
-  const sort = "year:desc";
+  const [sort, setSort] = useState("year:desc");
   const [searchGenre, setSearchGenre] = useState("All Genres");
   const [submittedTitle, setSubmittedTitle] = useState("");
   const currentPage = 0;
@@ -100,6 +100,10 @@ const MoviesList = () => {
     setSubmittedTitle("");
   };
 
+  const handleSortChange = (e) => {
+    setSort(e.target.value);
+  };
+
   const startResult = totalResults === 0 ? 0 : currentPage * moviesPerPage + 1;
   const endResult = Math.min((currentPage + 1) * moviesPerPage, totalResults);
 
@@ -171,6 +175,21 @@ const MoviesList = () => {
             </select>
           </div>
 
+          <div className={styles.searchGroup}>
+            <label className={styles.searchLabel}>Sort by</label>
+            <select
+              className={styles.searchSelect}
+              value={sort}
+              onChange={handleSortChange}
+            >
+              <option value="year:desc">Newest Releases</option>
+              <option value="year:asc">Oldest Releases</option>
+              <option value="rating:desc">Highest Rated</option>
+              <option value="rating:asc">Lowest Rated</option>
+              <option value="awards:desc">Most Awarded</option>
+              <option value="comments:desc">Most Discussed</option>
+            </select>
+          </div>
         </div>
       </div>
 
