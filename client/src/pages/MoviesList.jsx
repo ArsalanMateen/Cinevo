@@ -5,6 +5,7 @@ import { Search, Star, X } from "lucide-react";
 import MovieDataService from "../services/movies.js";
 import illustration from "../assets/images/illustration.png";
 import noMoviePoster from "../assets/images/poster.png";
+import Pagination from "../components/ui/Pagination.jsx";
 import styles from "./MoviesList.module.css";
 
 const MoviesList = () => {
@@ -12,7 +13,7 @@ const MoviesList = () => {
   const [sort, setSort] = useState("year:desc");
   const [searchGenre, setSearchGenre] = useState("All Genres");
   const [submittedTitle, setSubmittedTitle] = useState("");
-  const currentPage = 0;
+  const [currentPage, setCurrentPage] = useState(0);
 
   const [movies, setMovies] = useState([]);
   const [searchTitle, setSearchTitle] = useState(submittedTitle);
@@ -85,6 +86,7 @@ const MoviesList = () => {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setSubmittedTitle(searchTitle.trim());
+    setCurrentPage(0);
     setSearchGenre("All Genres");
   };
 
@@ -97,13 +99,20 @@ const MoviesList = () => {
     const newGenre = e.target.value;
     setSearchTitle("");
     setSearchGenre(newGenre);
+    setCurrentPage(0);
     setSubmittedTitle("");
   };
 
   const handleSortChange = (e) => {
     setSort(e.target.value);
+    setCurrentPage(0);
   };
 
+  const handlePageChange = (newPage) => {
+    setCurrentPage(newPage);
+  };
+
+  const totalPages = Math.ceil(totalResults / moviesPerPage);
   const startResult = totalResults === 0 ? 0 : currentPage * moviesPerPage + 1;
   const endResult = Math.min((currentPage + 1) * moviesPerPage, totalResults);
 
@@ -246,6 +255,11 @@ const MoviesList = () => {
         ))}
       </div>
 
+      <Pagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 };
