@@ -21,16 +21,18 @@
   font-size: 0.85rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  transition: all var(--transition-fast);
 }
 
-.paginationBtn:hover:not(.paginationBtnActive):not(.paginationBtnDisabled) {
+.paginationBtn:hover:not(.paginationBtnActive):not(
+    .paginationBtnDisabled
+  ) {
   background: #252d3d;
   color: var(--color-text);
 }
 
 .paginationBtnActive {
-  background: #6c5ce7;
+  background: var(--color-primary);
   color: white;
 }
 

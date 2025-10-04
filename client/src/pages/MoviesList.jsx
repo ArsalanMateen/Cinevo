@@ -19,7 +19,7 @@ const MoviesList = () => {
   const [searchTitle, setSearchTitle] = useState(submittedTitle);
   const [genres, setGenres] = useState(["All Genres"]);
   const [totalResults, setTotalResults] = useState(0);
-  const moviesPerPage = 20;
+  const [moviesPerPage, setMoviesPerPage] = useState(20);
 
   useEffect(() => {
     document.title = "Cinevo";
@@ -105,6 +105,11 @@ const MoviesList = () => {
 
   const handleSortChange = (e) => {
     setSort(e.target.value);
+    setCurrentPage(0);
+  };
+
+  const handlePerPageChange = (e) => {
+    setMoviesPerPage(parseInt(e.target.value, 10));
     setCurrentPage(0);
   };
 
@@ -206,6 +211,14 @@ const MoviesList = () => {
         <span className={styles.resultsText}>
           Showing {startResult}-{endResult} of {totalResults.toLocaleString()}
         </span>
+        <div className={styles.resultsPerPage}>
+          Items per page
+          <select value={moviesPerPage} onChange={handlePerPageChange}>
+            <option value="10">10</option>
+            <option value="15">15</option>
+            <option value="20">20</option>
+          </select>
+        </div>
       </div>
 
       <div className={styles.grid}>
