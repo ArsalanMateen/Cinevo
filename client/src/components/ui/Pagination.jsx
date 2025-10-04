@@ -6,7 +6,22 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   if (totalPages <= 1) return null;
 
   const getPageNumbers = () => {
-    const pages = Array.from({ length: totalPages }, (_, i) => i);
+    const pages = [];
+    const maxVisible = 5;
+
+    if (totalPages <= maxVisible + 2) {
+      for (let i = 0; i < totalPages; i++) pages.push(i);
+    } else {
+      pages.push(0);
+      if (currentPage > 2) pages.push("...");
+
+      const start = Math.max(1, currentPage - 1);
+      const end = Math.min(totalPages - 2, currentPage + 1);
+      for (let i = start; i <= end; i++) pages.push(i);
+
+      if (currentPage < totalPages - 3) pages.push("...");
+      pages.push(totalPages - 1);
+    }
     return pages;
   };
 
@@ -21,7 +36,12 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
         <ChevronLeft size={16} />
       </button>
 
-      {getPageNumbers().map((page) => (
+      {getPageNumbers().map((page, index) =>
+        page === "..." ? (
+          <span key={`ellipsis-${index}`} className={styles.paginationEllipsis}>
+            ...
+          </span>
+        ) : (
           <button
             key={page}
             className={`${styles.paginationBtn} ${page === currentPage ? styles.paginationBtnActive : ""}`}
