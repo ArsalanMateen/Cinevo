@@ -30,7 +30,7 @@
 }
 
 .paginationBtnActive {
-  background: #6c5ce7;
+  background: var(--color-primary);
   color: white;
 }
 
