@@ -77,3 +77,48 @@
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
+
+.stats {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 20px;
+}
+
+.stat {
+  text-align: center;
+}
+
+.statValue {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.statLabel {
+  font-size: 0.75rem;
+  color: var(--color-text-dimmed);
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+.cast {
+  margin-bottom: 20px;
+}
+
+.castTitle {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--color-text-white);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 6px;
+}
+
+.castList {
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { Clock, Calendar } from "lucide-react";
+import { Star, Clock, Calendar } from "lucide-react";
 
 import MovieDataService from "../services/movies.js";
 import BackLink from "../components/ui/BackLink.jsx";
@@ -92,6 +92,52 @@ const Movie = (props) => {
           )}
 
           <p className={styles.plot}>{movie.fullplot || movie.plot || "No plot available."}</p>
+
+          <div className={styles.stats}>
+            {movie.imdb && movie.imdb.rating > 0 && (
+              <div className={styles.stat}>
+                <div className={styles.statValue}>
+                  <Star
+                    size={18}
+                    fill="var(--color-star)"
+                    color="var(--color-star)"
+                  />
+                  <span>{movie.imdb.rating}</span>
+                </div>
+                <div className={styles.statLabel}>IMDb Rating</div>
+              </div>
+            )}
+            {movie.imdb && movie.imdb.votes > 0 && (
+              <div className={styles.stat}>
+                <div className={styles.statValue}>
+                  {movie.imdb.votes.toLocaleString()}
+                </div>
+                <div className={styles.statLabel}>Votes</div>
+              </div>
+            )}
+          </div>
+
+          {movie.cast && movie.cast.length > 0 && (
+            <div className={styles.cast}>
+              <div className={styles.castTitle}>Cast</div>
+
+              <div className={styles.castList}>
+                {movie.cast.slice(0, 6).join(", ")}
+              </div>
+            </div>
+          )}
+
+          {movie.directors && movie.directors.length > 0 && (
+            <div className={styles.cast}>
+              <div className={styles.castTitle}>
+                {movie.directors.length > 1 ? "Directors" : "Director"}
+              </div>
+
+              <div className={styles.castList}>
+                {movie.directors.join(", ")}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
