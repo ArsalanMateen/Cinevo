@@ -10,8 +10,3 @@
   min-height: 100vh;
 }
 
-@media (max-width: 768px) {
-  .appMain {
-    padding: 16px;
-  }
-}
