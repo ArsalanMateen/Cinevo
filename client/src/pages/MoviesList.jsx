@@ -8,39 +8,27 @@ import noMoviePoster from "../assets/images/poster.png";
 import Pagination from "../components/ui/Pagination.jsx";
 import styles from "./MoviesList.module.css";
 
-const MoviesList = () => {
+const MoviesList = ({ defaultSort = "year:desc" }) => {
   const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
-  const sort = searchParams.get("sort") || "year:desc";
+  const sort = searchParams.get("sort") || defaultSort;
   const searchGenre = searchParams.get("genre") || "All Genres";
   const submittedTitle = searchParams.get("title") || "";
   const currentPage = parseInt(searchParams.get("page"), 10) || 0;
+  const [moviesPerPage, setMoviesPerPage] = useState(20);
 
   const [movies, setMovies] = useState([]);
-  const [searchTitle, setSearchTitle] = useState(submittedTitle);
-  const [genres, setGenres] = useState(["All Genres"]);
   const [totalResults, setTotalResults] = useState(0);
-  const [moviesPerPage, setMoviesPerPage] = useState(20);
+
+  const [searchTitle, setSearchTitle] = useState(submittedTitle);
+
+  const [genres, setGenres] = useState(["All Genres"]);
 
   useEffect(() => {
     document.title = "Cinevo";
     retrieveGenres();
-  }, []);
-
-  const retrieveGenres = () => {
-    MovieDataService.getGenres()
-      .then((response) => {
-        setGenres(["All Genres"].concat(response?.data || []));
-      })
-      .catch((e) => {
-        console.error("Error retrieving genres:", e);
-      });
-  };
-
-  useEffect(() => {
-    setSearchTitle(submittedTitle);
-  }, [submittedTitle]);
+  }, []); // dependency array is empty, so this effect runs only once on mount
 
   const updateQueryParams = useCallback(
     (updates) => {
@@ -49,7 +37,7 @@ const MoviesList = () => {
         const defaultValues = {
           page: 0,
           genre: "All Genres",
-          sort: "year:desc",
+          sort: defaultSort,
         };
 
         Object.entries(updates).forEach(([key, value]) => {
@@ -91,6 +79,24 @@ const MoviesList = () => {
   );
 
   useEffect(() => {
+    setSearchTitle(submittedTitle);
+  }, [submittedTitle]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    updateQueryParams({
+      title: searchTitle.trim(),
+      page: 0,
+      genre: "All Genres",
+    });
+  };
+
+  const handleClearSearch = () => {
+    setSearchTitle("");
+    updateQueryParams({ title: "" });
+  };
+
+  useEffect(() => {
     if (searchGenre !== "All Genres") {
       searchMovies(searchGenre, "genre");
     } else if (submittedTitle) {
@@ -108,18 +114,14 @@ const MoviesList = () => {
     searchMovies,
   ]);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    updateQueryParams({
-      title: searchTitle.trim(),
-      page: 0,
-      genre: "All Genres",
-    });
-  };
-
-  const handleClearSearch = () => {
-    setSearchTitle("");
-    updateQueryParams({ title: "" });
+  const retrieveGenres = () => {
+    MovieDataService.getGenres()
+      .then((response) => {
+        setGenres(["All Genres"].concat(response?.data || []));
+      })
+      .catch((e) => {
+        console.error("Error retrieving genres:", e);
+      });
   };
 
   const handleGenreChange = (e) => {
