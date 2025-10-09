@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Star, Clock, Calendar } from "lucide-react";
 
@@ -10,7 +10,10 @@ import styles from "./Movie.module.css";
 const Movie = (props) => {
   const { id } = useParams();
 
-  const [movie, setMovie] = useState({
+  const [isPlotExpanded, setIsPlotExpanded] = useState(false);
+  const [canExpandPlot, setCanExpandPlot] = useState(false);
+
+  const plotRef = useRef(null);
     _id: null,
     title: "",
     rated: "",
@@ -30,6 +33,29 @@ const Movie = (props) => {
   useEffect(() => {
     getMovie(id);
   }, [id]);
+
+  useEffect(() => {
+    setIsPlotExpanded(false);
+    setCanExpandPlot(false);
+
+    const checkOverflow = () => {
+      if (plotRef.current) {
+        const hasOverflow =
+          plotRef.current.scrollHeight > plotRef.current.clientHeight + 2;
+        if (hasOverflow) {
+          setCanExpandPlot(true);
+        }
+      }
+    };
+
+    const timer = setTimeout(checkOverflow, 50);
+    window.addEventListener("resize", checkOverflow);
+
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("resize", checkOverflow);
+    };
+  }, [movie]);
 
   useEffect(() => {
     if (movie && movie.title) {
@@ -91,7 +117,25 @@ const Movie = (props) => {
             </div>
           )}
 
-          <p className={styles.plot}>{movie.fullplot || movie.plot || "No plot available."}</p>
+          <div className={styles.plotWrapper}>
+            <p
+              ref={plotRef}
+              className={`${styles.plot} ${
+                isPlotExpanded ? styles.plotExpanded : ""
+              }`}
+            >
+              {movie.fullplot || movie.plot || "No plot available."}
+            </p>
+            {canExpandPlot && (
+              <button
+                type="button"
+                className={styles.plotToggle}
+                onClick={() => setIsPlotExpanded(!isPlotExpanded)}
+              >
+                {isPlotExpanded ? "Show less" : "Read more"}
+              </button>
+            )}
+          </div>
 
           <div className={styles.stats}>
             {movie.imdb && movie.imdb.rating > 0 && (

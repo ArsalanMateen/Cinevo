@@ -68,6 +68,10 @@
   font-size: 0.8rem;
 }
 
+.plotWrapper {
+  margin-bottom: 20px;
+}
+
 .plot {
   color: var(--color-text-muted);
   line-height: 1.7;
@@ -75,7 +79,29 @@
   margin-bottom: 6px;
   display: -webkit-box;
   -webkit-box-orient: vertical;
+  -webkit-line-clamp: 5;
   overflow: hidden;
+}
+
+.plotExpanded {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
+}
+
+.plotToggle {
+  background: none;
+  border: 0;
+  color: var(--color-primary);
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+}
+
+.plotToggle:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
 }
 
 .stats {
