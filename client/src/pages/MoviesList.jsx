@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-
+import { Link, useLocation } from "react-router-dom";
 import { Search, Star, X } from "lucide-react";
 
 import MovieDataService from "../services/movies.js";
@@ -9,6 +9,7 @@ import Pagination from "../components/ui/Pagination.jsx";
 import styles from "./MoviesList.module.css";
 
 const MoviesList = () => {
+  const location = useLocation();
 
   const [sort, setSort] = useState("year:desc");
   const [searchGenre, setSearchGenre] = useState("All Genres");
@@ -224,7 +225,11 @@ const MoviesList = () => {
       <div className={styles.grid}>
         {movies.map((movie) => (
           <div className={styles.card} key={movie._id}>
-            <div className={styles.cardLink}>
+            <Link
+              to={"/movies/" + movie._id}
+              state={{ from: `${location.pathname}${location.search}` }}
+              className={styles.cardLink}
+            >
               <div className={styles.posterWrapper}>
                 <img
                   className={styles.poster}
@@ -263,7 +268,7 @@ const MoviesList = () => {
                   </div>
                 )}
               </div>
-            </div>
+            </Link>
           </div>
         ))}
       </div>

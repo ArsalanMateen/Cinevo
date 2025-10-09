@@ -5,17 +5,25 @@ const API = import.meta.env.VITE_API_URL || "http://localhost:8000";
 class MovieDataService {
   getAll(page, sort, moviesPerPage) {
     let url = `${API}/api/v1/movies?page=${page}&moviesPerPage=${moviesPerPage}`;
+
     if (sort) {
       url += `&sort=${sort}`;
     }
+
     return axios.get(url);
+  }
+
+  get(id) {
+    return axios.get(`${API}/api/v1/movies/id/${id}`);
   }
 
   find(query, by, page, moviesPerPage, sort) {
     let url = `${API}/api/v1/movies?${by}=${encodeURIComponent(query)}&page=${page}&moviesPerPage=${moviesPerPage}`;
+
     if (sort) {
       url += `&sort=${sort}`;
     }
+
     return axios.get(url);
   }
 
@@ -24,5 +32,4 @@ class MovieDataService {
   }
 }
 
-const movieDataService = new MovieDataService();
-export default movieDataService;
+export default new MovieDataService();
