@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useSearchParams, useLocation } from "react-router-dom";
 import { Search, Star, X } from "lucide-react";
 
 import MovieDataService from "../services/movies.js";
@@ -8,38 +8,50 @@ import noMoviePoster from "../assets/images/poster.png";
 import Pagination from "../components/ui/Pagination.jsx";
 import styles from "./MoviesList.module.css";
 
-const MoviesList = () => {
+const MoviesList = ({ defaultSort = "year:desc" }) => {
+  const [searchParams, setSearchParams] = useSearchParams();
   const location = useLocation();
 
-  const [sort, setSort] = useState("year:desc");
-  const [searchGenre, setSearchGenre] = useState("All Genres");
-  const [submittedTitle, setSubmittedTitle] = useState("");
-  const [currentPage, setCurrentPage] = useState(0);
+  const sort = searchParams.get("sort") || defaultSort;
+  const searchGenre = searchParams.get("genre") || "All Genres";
+  const submittedTitle = searchParams.get("title") || "";
+  const currentPage = parseInt(searchParams.get("page"), 10) || 0;
+  const [moviesPerPage, setMoviesPerPage] = useState(20);
 
   const [movies, setMovies] = useState([]);
-  const [searchTitle, setSearchTitle] = useState(submittedTitle);
-  const [genres, setGenres] = useState(["All Genres"]);
   const [totalResults, setTotalResults] = useState(0);
-  const [moviesPerPage, setMoviesPerPage] = useState(20);
+
+  const [searchTitle, setSearchTitle] = useState(submittedTitle);
+
+  const [genres, setGenres] = useState(["All Genres"]);
 
   useEffect(() => {
     document.title = "Cinevo";
     retrieveGenres();
-  }, []);
+  }, []); // dependency array is empty, so this effect runs only once on mount
 
-  const retrieveGenres = () => {
-    MovieDataService.getGenres()
-      .then((response) => {
-        setGenres(["All Genres"].concat(response?.data || []));
-      })
-      .catch((e) => {
-        console.error("Error retrieving genres:", e);
+  const updateQueryParams = useCallback(
+    (updates) => {
+      setSearchParams((prev) => {
+        const params = new URLSearchParams(prev);
+        const defaultValues = {
+          page: 0,
+          genre: "All Genres",
+          sort: defaultSort,
+        };
+
+        Object.entries(updates).forEach(([key, value]) => {
+          if (value == null || value === "" || value === defaultValues[key]) {
+            params.delete(key);
+          } else {
+            params.set(key, String(value));
+          }
+        });
+        return params;
       });
-  };
-
-  useEffect(() => {
-    setSearchTitle(submittedTitle);
-  }, [submittedTitle]);
+    },
+    [setSearchParams],
+  );
 
   const retrieveMovies = useCallback(() => {
     MovieDataService.getAll(currentPage, sort, moviesPerPage)
@@ -67,6 +79,24 @@ const MoviesList = () => {
   );
 
   useEffect(() => {
+    setSearchTitle(submittedTitle);
+  }, [submittedTitle]);
+
+  const handleSearchSubmit = (e) => {
+    e.preventDefault();
+    updateQueryParams({
+      title: searchTitle.trim(),
+      page: 0,
+      genre: "All Genres",
+    });
+  };
+
+  const handleClearSearch = () => {
+    setSearchTitle("");
+    updateQueryParams({ title: "" });
+  };
+
+  useEffect(() => {
     if (searchGenre !== "All Genres") {
       searchMovies(searchGenre, "genre");
     } else if (submittedTitle) {
@@ -84,38 +114,33 @@ const MoviesList = () => {
     searchMovies,
   ]);
 
-  const handleSearchSubmit = (e) => {
-    e.preventDefault();
-    setSubmittedTitle(searchTitle.trim());
-    setCurrentPage(0);
-    setSearchGenre("All Genres");
-  };
-
-  const handleClearSearch = () => {
-    setSearchTitle("");
-    setSubmittedTitle("");
+  const retrieveGenres = () => {
+    MovieDataService.getGenres()
+      .then((response) => {
+        setGenres(["All Genres"].concat(response?.data || []));
+      })
+      .catch((e) => {
+        console.error("Error retrieving genres:", e);
+      });
   };
 
   const handleGenreChange = (e) => {
     const newGenre = e.target.value;
     setSearchTitle("");
-    setSearchGenre(newGenre);
-    setCurrentPage(0);
-    setSubmittedTitle("");
+    updateQueryParams({ genre: newGenre, page: 0, title: "" });
   };
 
   const handleSortChange = (e) => {
-    setSort(e.target.value);
-    setCurrentPage(0);
+    updateQueryParams({ sort: e.target.value, page: 0 });
   };
 
   const handlePerPageChange = (e) => {
     setMoviesPerPage(parseInt(e.target.value, 10));
-    setCurrentPage(0);
+    updateQueryParams({ page: 0 });
   };
 
   const handlePageChange = (newPage) => {
-    setCurrentPage(newPage);
+    updateQueryParams({ page: newPage });
   };
 
   const totalPages = Math.ceil(totalResults / moviesPerPage);
