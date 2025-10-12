@@ -30,6 +30,14 @@ class MovieDataService {
   getGenres() {
     return axios.get(`${API}/api/v1/movies/genres`);
   }
+
+  login(data) {
+    return axios.post(`${API}/api/v1/movies/users/login`, data);
+  }
+
+  register(data) {
+    return axios.post(`${API}/api/v1/movies/users/register`, data);
+  }
 }
 
 export default new MovieDataService();
