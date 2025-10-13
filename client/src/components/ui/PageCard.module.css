@@ -1,0 +1,26 @@
+.pageCard {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: calc(100vh - 80px);
+  padding: 40px 20px;
+}
+
+.pageCardInner {
+  width: 100%;
+  background: #11141d;
+  border: 1px solid var(--color-border-light);
+  border-radius: 20px;
+  padding: 32px 32px 36px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  transition: all var(--transition-med);
+}
+
+@media (max-width: 576px) {
+  .pageCardInner {
+    padding: 24px 20px 28px;
+  }
+}

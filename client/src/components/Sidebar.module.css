@@ -103,3 +103,62 @@
   letter-spacing: 0.04em;
   line-height: 1;
 }
+
+.footer {
+  padding: 14px;
+  border-top: 1px solid var(--color-border-faint);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.profileCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--color-border-faint);
+  border-radius: 12px;
+}
+
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  background: var(--color-primary);
+  font-weight: 600;
+  font-size: 0.85rem;
+  color: var(--color-text-white);
+  line-height: 1;
+}
+
+.profileName {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--color-text-bright);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  display: block;
+}
+
+.logoutBtn {
+  background: transparent;
+  border: 0;
+  color: var(--color-text-faint);
+  padding: 6px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.logoutBtn:hover {
+  background: var(--color-error-muted);
+  color: var(--color-error);
+}
