@@ -203,6 +203,11 @@ const Movie = (props) => {
           <h2 className={styles.reviewsTitle}>
             Reviews ({movie.reviews ? movie.reviews.length : 0})
           </h2>
+          {props.user && (
+            <Link to={`/movies/${id}/review`} className={styles.addReviewLink}>
+              Add Review
+            </Link>
+          )}
         </div>
 
         {movie.reviews && movie.reviews.length > 0 && (
