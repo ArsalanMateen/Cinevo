@@ -1,6 +1,6 @@
 import React from "react";
 import { NavLink } from "react-router-dom";
-import { Film, TrendingUp, Award, Flame } from "lucide-react";
+import { Film, TrendingUp, Award, Flame, LogOut } from "lucide-react";
 
 import logo from "../assets/images/logo.png";
 import styles from "./Sidebar.module.css";
@@ -39,6 +39,29 @@ const Sidebar = ({ user, logout }) => {
           ))}
         </nav>
       </div>
+
+      {user && (
+        <div className={styles.footer}>
+          <div className={styles.profileCard}>
+            <div className={styles.avatar}>
+              {user.name ? user.name.charAt(0).toUpperCase() : "U"}
+            </div>
+            <div className={styles.profileDetails}>
+              <span className={styles.profileName} title={user.name}>
+                {user.name}
+              </span>
+            </div>
+            <button
+              className={styles.logoutBtn}
+              onClick={logout}
+              title="Logout"
+              aria-label="Logout"
+            >
+              <LogOut size={16} />
+            </button>
+          </div>
+        </div>
+      )}
     </aside>
   );
 };
