@@ -31,6 +31,10 @@ class MovieDataService {
     return axios.get(`${API}/api/v1/movies/genres`);
   }
 
+  createReview(data) {
+    return axios.post(`${API}/api/v1/movies/reviews`, data);
+  }
+
   login(data) {
     return axios.post(`${API}/api/v1/movies/users/login`, data);
   }

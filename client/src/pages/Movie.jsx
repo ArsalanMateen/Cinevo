@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { Star, Clock, Calendar } from "lucide-react";
 
 import MovieDataService from "../services/movies.js";
@@ -7,22 +7,35 @@ import BackLink from "../components/ui/BackLink.jsx";
 import noMoviePoster from "../assets/images/poster.png";
 import styles from "./Movie.module.css";
 
+const reviewDateFormatter = new Intl.DateTimeFormat("en-US", {
+  month: "short",
+  day: "2-digit",
+  year: "numeric",
+});
+
 const Movie = (props) => {
   const { id } = useParams();
 
-  const [isPlotExpanded, setIsPlotExpanded] = useState(false);
-  const [canExpandPlot, setCanExpandPlot] = useState(false);
-
-  const plotRef = useRef(null);
+  const [movie, setMovie] = useState({
     _id: null,
     title: "",
     rated: "",
     reviews: [],
   });
 
+  const [isPlotExpanded, setIsPlotExpanded] = useState(false);
+  const [canExpandPlot, setCanExpandPlot] = useState(false);
+
+  const plotRef = useRef(null);
+
   const getMovie = (id) => {
     MovieDataService.get(id)
       .then((response) => {
+        if (response.data && Array.isArray(response.data.reviews)) {
+          response.data.reviews.sort(
+            (a, b) => new Date(b.date || 0) - new Date(a.date || 0),
+          );
+        }
         setMovie(response.data);
       })
       .catch((e) => {
@@ -33,6 +46,14 @@ const Movie = (props) => {
   useEffect(() => {
     getMovie(id);
   }, [id]);
+
+  useEffect(() => {
+    if (movie && movie.title) {
+      document.title = `${movie.title} | Cinevo`;
+    } else {
+      document.title = "Movie Details | Cinevo";
+    }
+  }, [movie]);
 
   useEffect(() => {
     setIsPlotExpanded(false);
@@ -55,14 +76,6 @@ const Movie = (props) => {
       clearTimeout(timer);
       window.removeEventListener("resize", checkOverflow);
     };
-  }, [movie]);
-
-  useEffect(() => {
-    if (movie && movie.title) {
-      document.title = movie.title;
-    } else {
-      document.title = "Movie Details";
-    }
   }, [movie]);
 
   return (
@@ -183,6 +196,41 @@ const Movie = (props) => {
             </div>
           )}
         </div>
+      </div>
+
+      <div className={styles.reviewsSection}>
+        <div className={styles.reviewsHeader}>
+          <h2 className={styles.reviewsTitle}>
+            Reviews ({movie.reviews ? movie.reviews.length : 0})
+          </h2>
+          {props.user && (
+            <Link to={`/movies/${id}/review`} className={styles.addReviewLink}>
+              Add Review
+            </Link>
+          )}
+        </div>
+
+        {movie.reviews && movie.reviews.length > 0 && (
+          <div className={styles.reviewsList}>
+            {[...movie.reviews]
+              .sort((a, b) => new Date(b.date || 0) - new Date(a.date || 0))
+              .map((review, index) => (
+                <div key={review._id || index} className={styles.reviewCard}>
+                  <div className={styles.reviewContent}>
+                    <div className={styles.reviewHeader}>
+                      <span className={styles.reviewAuthor}>{review.name}</span>
+                      <div className={styles.reviewMeta}>
+                        <span className={styles.reviewDate}>
+                          {reviewDateFormatter.format(new Date(review.date))}
+                        </span>
+                      </div>
+                    </div>
+                    <p className={styles.reviewText}>{review.review}</p>
+                  </div>
+                </div>
+              ))}
+          </div>
+        )}
       </div>
     </div>
   );

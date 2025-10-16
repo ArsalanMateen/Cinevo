@@ -4,6 +4,7 @@ import "./styles/main.css";
 import styles from "./App.module.css";
 
 import Sidebar from "./components/Sidebar.jsx";
+import AddReview from "./pages/AddReview.jsx";
 import MoviesList from "./pages/MoviesList.jsx";
 import Movie from "./pages/Movie.jsx";
 import Login from "./pages/Login.jsx";
@@ -59,6 +60,10 @@ function App() {
           <Route
             path="/movies/most-discussed"
             element={<MoviesList defaultSort="comments:desc" />}
+          />
+          <Route
+            path="/movies/:id/review"
+            element={<AddReview user={user} />}
           />
           <Route path="/movies/:id" element={<Movie user={user} />} />
           <Route path="/login" element={<Login login={login} />} />
