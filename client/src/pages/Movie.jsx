@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Star, Clock, Calendar } from "lucide-react";
+import { Star, Edit3, Clock, Calendar } from "lucide-react";
 
 import MovieDataService from "../services/movies.js";
 import BackLink from "../components/ui/BackLink.jsx";
@@ -223,6 +223,20 @@ const Movie = (props) => {
                         <span className={styles.reviewDate}>
                           {reviewDateFormatter.format(new Date(review.date))}
                         </span>
+
+                        {props.user && props.user._id === review.user_id && (
+                          <div className={styles.reviewActions}>
+                            <Link
+                              to={`/movies/${id}/review`}
+                              state={{ currentReview: review }}
+                              className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
+                              title="Edit Review"
+                              aria-label="Edit review"
+                            >
+                              <Edit3 size={14} />
+                            </Link>
+                          </div>
+                        )}
                       </div>
                     </div>
                     <p className={styles.reviewText}>{review.review}</p>
