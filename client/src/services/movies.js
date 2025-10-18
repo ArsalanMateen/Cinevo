@@ -35,6 +35,10 @@ class MovieDataService {
     return axios.post(`${API}/api/v1/movies/reviews`, data);
   }
 
+  updateReview(data) {
+    return axios.put(`${API}/api/v1/movies/reviews`, data);
+  }
+
   login(data) {
     return axios.post(`${API}/api/v1/movies/users/login`, data);
   }
