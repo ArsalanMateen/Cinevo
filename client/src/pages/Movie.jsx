@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Star, Edit3, Clock, Calendar } from "lucide-react";
+import { Star, Edit3, Trash2, Clock, Calendar } from "lucide-react";
 
 import MovieDataService from "../services/movies.js";
 import BackLink from "../components/ui/BackLink.jsx";
@@ -27,6 +27,19 @@ const Movie = (props) => {
   const [canExpandPlot, setCanExpandPlot] = useState(false);
 
   const plotRef = useRef(null);
+
+  const deleteReview = (reviewId) => {
+    MovieDataService.deleteReview(reviewId, props.user?._id)
+      .then(() => {
+        setMovie((prevState) => ({
+          ...prevState,
+          reviews: prevState.reviews.filter((r) => r._id !== reviewId),
+        }));
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
 
   const getMovie = (id) => {
     MovieDataService.get(id)
@@ -235,6 +248,14 @@ const Movie = (props) => {
                             >
                               <Edit3 size={14} />
                             </Link>
+                            <button
+                              className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
+                              onClick={() => deleteReview(review._id)}
+                              title="Delete Review"
+                              aria-label="Delete review"
+                            >
+                              <Trash2 size={14} />
+                            </button>
                           </div>
                         )}
                       </div>
