@@ -39,6 +39,12 @@ class MovieDataService {
     return axios.put(`${API}/api/v1/movies/reviews`, data);
   }
 
+  deleteReview(id, userId) {
+    return axios.delete(`${API}/api/v1/movies/reviews`, {
+      data: { review_id: id, user_id: userId },
+    });
+  }
+
   login(data) {
     return axios.post(`${API}/api/v1/movies/users/login`, data);
   }
@@ -48,4 +54,5 @@ class MovieDataService {
   }
 }
 
-export default new MovieDataService();
+const movieDataService = new MovieDataService();
+export default movieDataService;
