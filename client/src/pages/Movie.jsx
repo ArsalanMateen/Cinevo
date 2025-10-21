@@ -29,12 +29,66 @@ const Movie = (props) => {
   const plotRef = useRef(null);
 
   const [newReviewText, setNewReviewText] = useState("");
+  const [editingReviewId, setEditingReviewId] = useState(null);
+
+  const handleStartEdit = (review) => {
+    setEditingReviewId(review._id);
+    setNewReviewText(review.review || "");
+    document
+      .getElementById("review-composer")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReviewId(null);
+    setNewReviewText("");
+  };
 
   const handleReviewSubmit = (e) => {
     e.preventDefault();
     if (!newReviewText.trim()) return;
 
-    const data = {
+    if (editingReviewId) {
+      const data = {
+        review_id: editingReviewId,
+        review: newReviewText.trim(),
+        name: props.user.name,
+        email: props.user.email,
+        user_id: props.user._id,
+        movie_id: id,
+      };
+
+      MovieDataService.updateReview(data)
+        .then(() => {
+          setMovie((prevState) => {
+            const updated = prevState.reviews.map((r) =>
+              r._id === editingReviewId
+                ? {
+                    ...r,
+                    review: newReviewText.trim(),
+                    date: new Date().toISOString(),
+                  }
+                : r,
+            );
+
+            updated.sort(
+              (a, b) => new Date(b.date || 0) - new Date(a.date || 0),
+            );
+
+            return {
+              ...prevState,
+              reviews: updated,
+            };
+          });
+
+          setNewReviewText("");
+          setEditingReviewId(null);
+        })
+        .catch((e) => {
+          console.error(e);
+        });
+    } else {
+      const data = {
       review: newReviewText.trim(),
       name: props.user.name,
       email: props.user.email,
@@ -260,12 +314,25 @@ const Movie = (props) => {
                 />
                 <div className={styles.composerFooter}>
                   <div className={styles.actions}>
+                    {editingReviewId && (
+                      <button
+                        type="button"
+                        className={styles.cancelBtn}
+                        onClick={handleCancelEdit}
+                      >
+                        Cancel
+                      </button>
+                    )}
                     <button
                       type="submit"
                       className={styles.submitBtn}
                       disabled={!newReviewText.trim()}
-                      title="Submit Review"
-                      aria-label="Submit Review"
+                      title={
+                        editingReviewId ? "Update Review" : "Submit Review"
+                      }
+                      aria-label={
+                        editingReviewId ? "Update Review" : "Submit Review"
+                      }
                     >
                       <Send size={15} className={styles.btnIcon} />
                     </button>
@@ -311,15 +378,14 @@ const Movie = (props) => {
 
                         {props.user && props.user._id === review.user_id && (
                           <div className={styles.reviewActions}>
-                            <Link
-                              to={`/movies/${id}/review`}
-                              state={{ currentReview: review }}
+                            <button
                               className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
+                              onClick={() => handleStartEdit(review)}
                               title="Edit Review"
                               aria-label="Edit review"
                             >
                               <Edit3 size={14} />
-                            </Link>
+                            </button>
                             <button
                               className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
                               onClick={() => deleteReview(review._id)}
