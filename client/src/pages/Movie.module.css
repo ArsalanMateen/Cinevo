@@ -306,8 +306,20 @@
 .composerFooter {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
+  justify-content: space-between;
   gap: 12px;
+}
+
+.counter {
+  font-size: 0.75rem;
+  color: var(--color-text-faint);
+  font-weight: 500;
+}
+
+.error {
+  margin-top: 10px;
+  font-size: 0.82rem;
+  color: var(--color-error);
 }
 
 .actions {

@@ -4,6 +4,7 @@ import { Star, Edit3, Trash2, Clock, Calendar, User, Send } from "lucide-react";
 
 import MovieDataService from "../services/movies.js";
 import BackLink from "../components/ui/BackLink.jsx";
+import Spinner from "../components/ui/Spinner.jsx";
 import noMoviePoster from "../assets/images/poster.png";
 import styles from "./Movie.module.css";
 
@@ -30,10 +31,13 @@ const Movie = (props) => {
 
   const [newReviewText, setNewReviewText] = useState("");
   const [editingReviewId, setEditingReviewId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState("");
 
   const handleStartEdit = (review) => {
     setEditingReviewId(review._id);
     setNewReviewText(review.review || "");
+    setReviewError("");
     document
       .getElementById("review-composer")
       ?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -42,11 +46,16 @@ const Movie = (props) => {
   const handleCancelEdit = () => {
     setEditingReviewId(null);
     setNewReviewText("");
+    setReviewError("");
   };
 
   const handleReviewSubmit = (e) => {
     e.preventDefault();
+
     if (!newReviewText.trim()) return;
+
+    setSubmitting(true);
+    setReviewError("");
 
     if (editingReviewId) {
       const data = {
@@ -86,7 +95,9 @@ const Movie = (props) => {
         })
         .catch((e) => {
           console.error(e);
-        });
+          setReviewError("Failed to update review. Please try again.");
+        })
+        .finally(() => setSubmitting(false));
     } else {
       const data = {
       review: newReviewText.trim(),
@@ -308,11 +319,17 @@ const Movie = (props) => {
                   className={styles.composerTextarea}
                   placeholder="Share your thoughts about this movie"
                   value={newReviewText}
-                  onChange={(e) => setNewReviewText(e.target.value)}
+                  onChange={(e) =>
+                    setNewReviewText(e.target.value.slice(0, 1000))
+                  }
                   rows={2}
                   required
                 />
                 <div className={styles.composerFooter}>
+                  <span className={styles.counter}>
+                    {newReviewText.length} / 1000 characters
+                  </span>
+
                   <div className={styles.actions}>
                     {editingReviewId && (
                       <button
@@ -326,7 +343,7 @@ const Movie = (props) => {
                     <button
                       type="submit"
                       className={styles.submitBtn}
-                      disabled={!newReviewText.trim()}
+                      disabled={submitting || !newReviewText.trim()}
                       title={
                         editingReviewId ? "Update Review" : "Submit Review"
                       }
@@ -334,12 +351,17 @@ const Movie = (props) => {
                         editingReviewId ? "Update Review" : "Submit Review"
                       }
                     >
-                      <Send size={15} className={styles.btnIcon} />
+                      {submitting ? (
+                        <Spinner size={16} />
+                      ) : (
+                        <Send size={15} className={styles.btnIcon} />
+                      )}
                     </button>
                   </div>
                 </div>
               </div>
             </div>
+            {reviewError && <div className={styles.error}>{reviewError}</div>}
           </form>
         ) : (
           <div className={styles.guestNotice}>
