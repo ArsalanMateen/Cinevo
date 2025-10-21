@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Star, Edit3, Trash2, Clock, Calendar } from "lucide-react";
+import { Star, Edit3, Trash2, Clock, Calendar, User, Send } from "lucide-react";
 
 import MovieDataService from "../services/movies.js";
 import BackLink from "../components/ui/BackLink.jsx";
@@ -27,6 +27,30 @@ const Movie = (props) => {
   const [canExpandPlot, setCanExpandPlot] = useState(false);
 
   const plotRef = useRef(null);
+
+  const [newReviewText, setNewReviewText] = useState("");
+
+  const handleReviewSubmit = (e) => {
+    e.preventDefault();
+    if (!newReviewText.trim()) return;
+
+    const data = {
+      review: newReviewText.trim(),
+      name: props.user.name,
+      email: props.user.email,
+      user_id: props.user._id,
+      movie_id: id,
+    };
+
+    MovieDataService.createReview(data)
+      .then(() => {
+        getMovie(id);
+        setNewReviewText("");
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  };
 
   const deleteReview = (reviewId) => {
     MovieDataService.deleteReview(reviewId, props.user?._id)
@@ -216,12 +240,60 @@ const Movie = (props) => {
           <h2 className={styles.reviewsTitle}>
             Reviews ({movie.reviews ? movie.reviews.length : 0})
           </h2>
-          {props.user && (
-            <Link to={`/movies/${id}/review`} className={styles.addReviewLink}>
-              Add Review
-            </Link>
-          )}
         </div>
+
+        {props.user ? (
+          <form
+            id="review-composer"
+            className={styles.composer}
+            onSubmit={handleReviewSubmit}
+          >
+            <div className={styles.composerBody}>
+              <div className={styles.composerContent}>
+                <textarea
+                  className={styles.composerTextarea}
+                  placeholder="Share your thoughts about this movie"
+                  value={newReviewText}
+                  onChange={(e) => setNewReviewText(e.target.value)}
+                  rows={2}
+                  required
+                />
+                <div className={styles.composerFooter}>
+                  <div className={styles.actions}>
+                    <button
+                      type="submit"
+                      className={styles.submitBtn}
+                      disabled={!newReviewText.trim()}
+                      title="Submit Review"
+                      aria-label="Submit Review"
+                    >
+                      <Send size={15} className={styles.btnIcon} />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </form>
+        ) : (
+          <div className={styles.guestNotice}>
+            <div className={styles.guestAvatar}>
+              <User size={18} />
+            </div>
+            <div className={styles.guestText}>
+              <Link
+                to="/login"
+                state={{
+                  from: `${location.pathname}${location.search}`,
+                  fromState: location.state,
+                }}
+                className={styles.guestLink}
+              >
+                Sign in
+              </Link>{" "}
+              to share your thoughts about this movie.
+            </div>
+          </div>
+        )}
 
         {movie.reviews && movie.reviews.length > 0 && (
           <div className={styles.reviewsList}>
