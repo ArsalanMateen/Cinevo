@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useParams } from "react-router-dom";
-import { Star, Edit3, Trash2, Clock, Calendar } from "lucide-react";
+import { Star, Edit3, Trash2, Clock, Calendar, User, Send } from "lucide-react";
 
 import MovieDataService from "../services/movies.js";
 import BackLink from "../components/ui/BackLink.jsx";
+import Spinner from "../components/ui/Spinner.jsx";
 import noMoviePoster from "../assets/images/poster.png";
 import styles from "./Movie.module.css";
 
@@ -27,6 +28,94 @@ const Movie = (props) => {
   const [canExpandPlot, setCanExpandPlot] = useState(false);
 
   const plotRef = useRef(null);
+
+  const [newReviewText, setNewReviewText] = useState("");
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+
+  const handleStartEdit = (review) => {
+    setEditingReviewId(review._id);
+    setNewReviewText(review.review || "");
+    setReviewError("");
+    document
+      .getElementById("review-composer")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReviewId(null);
+    setNewReviewText("");
+    setReviewError("");
+  };
+
+  const handleReviewSubmit = (e) => {
+    e.preventDefault();
+
+    if (!newReviewText.trim()) return;
+
+    setSubmitting(true);
+    setReviewError("");
+
+    if (editingReviewId) {
+      const data = {
+        review_id: editingReviewId,
+        review: newReviewText.trim(),
+        name: props.user.name,
+        email: props.user.email,
+        user_id: props.user._id,
+        movie_id: id,
+      };
+
+      MovieDataService.updateReview(data)
+        .then(() => {
+          setMovie((prevState) => {
+            const updated = prevState.reviews.map((r) =>
+              r._id === editingReviewId
+                ? {
+                    ...r,
+                    review: newReviewText.trim(),
+                    date: new Date().toISOString(),
+                  }
+                : r,
+            );
+
+            updated.sort(
+              (a, b) => new Date(b.date || 0) - new Date(a.date || 0),
+            );
+
+            return {
+              ...prevState,
+              reviews: updated,
+            };
+          });
+
+          setNewReviewText("");
+          setEditingReviewId(null);
+        })
+        .catch((e) => {
+          console.error(e);
+          setReviewError("Failed to update review. Please try again.");
+        })
+        .finally(() => setSubmitting(false));
+    } else {
+      const data = {
+      review: newReviewText.trim(),
+      name: props.user.name,
+      email: props.user.email,
+      user_id: props.user._id,
+      movie_id: id,
+    };
+
+    MovieDataService.createReview(data)
+      .then(() => {
+        getMovie(id);
+        setNewReviewText("");
+      })
+      .catch((e) => {
+        console.error(e);
+      });
+  };
 
   const deleteReview = (reviewId) => {
     MovieDataService.deleteReview(reviewId, props.user?._id)
@@ -216,12 +305,84 @@ const Movie = (props) => {
           <h2 className={styles.reviewsTitle}>
             Reviews ({movie.reviews ? movie.reviews.length : 0})
           </h2>
-          {props.user && (
-            <Link to={`/movies/${id}/review`} className={styles.addReviewLink}>
-              Add Review
-            </Link>
-          )}
         </div>
+
+        {props.user ? (
+          <form
+            id="review-composer"
+            className={styles.composer}
+            onSubmit={handleReviewSubmit}
+          >
+            <div className={styles.composerBody}>
+              <div className={styles.composerContent}>
+                <textarea
+                  className={styles.composerTextarea}
+                  placeholder="Share your thoughts about this movie"
+                  value={newReviewText}
+                  onChange={(e) =>
+                    setNewReviewText(e.target.value.slice(0, 1000))
+                  }
+                  rows={2}
+                  required
+                />
+                <div className={styles.composerFooter}>
+                  <span className={styles.counter}>
+                    {newReviewText.length} / 1000 characters
+                  </span>
+
+                  <div className={styles.actions}>
+                    {editingReviewId && (
+                      <button
+                        type="button"
+                        className={styles.cancelBtn}
+                        onClick={handleCancelEdit}
+                      >
+                        Cancel
+                      </button>
+                    )}
+                    <button
+                      type="submit"
+                      className={styles.submitBtn}
+                      disabled={submitting || !newReviewText.trim()}
+                      title={
+                        editingReviewId ? "Update Review" : "Submit Review"
+                      }
+                      aria-label={
+                        editingReviewId ? "Update Review" : "Submit Review"
+                      }
+                    >
+                      {submitting ? (
+                        <Spinner size={16} />
+                      ) : (
+                        <Send size={15} className={styles.btnIcon} />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            {reviewError && <div className={styles.error}>{reviewError}</div>}
+          </form>
+        ) : (
+          <div className={styles.guestNotice}>
+            <div className={styles.guestAvatar}>
+              <User size={18} />
+            </div>
+            <div className={styles.guestText}>
+              <Link
+                to="/login"
+                state={{
+                  from: `${location.pathname}${location.search}`,
+                  fromState: location.state,
+                }}
+                className={styles.guestLink}
+              >
+                Sign in
+              </Link>{" "}
+              to share your thoughts about this movie.
+            </div>
+          </div>
+        )}
 
         {movie.reviews && movie.reviews.length > 0 && (
           <div className={styles.reviewsList}>
@@ -239,15 +400,14 @@ const Movie = (props) => {
 
                         {props.user && props.user._id === review.user_id && (
                           <div className={styles.reviewActions}>
-                            <Link
-                              to={`/movies/${id}/review`}
-                              state={{ currentReview: review }}
+                            <button
                               className={`${styles.actionBtn} ${styles.actionBtnEdit}`}
+                              onClick={() => handleStartEdit(review)}
                               title="Edit Review"
                               aria-label="Edit review"
                             >
                               <Edit3 size={14} />
-                            </Link>
+                            </button>
                             <button
                               className={`${styles.actionBtn} ${styles.actionBtnDelete}`}
                               onClick={() => deleteReview(review._id)}
