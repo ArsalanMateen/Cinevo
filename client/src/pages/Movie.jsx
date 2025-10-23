@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useParams, useLocation, useNavigate } from "react-router-dom";
 import { Star, Edit3, Trash2, Clock, Calendar, User, Send } from "lucide-react";
 
 import MovieDataService from "../services/movies.js";
@@ -16,6 +16,8 @@ const reviewDateFormatter = new Intl.DateTimeFormat("en-US", {
 
 const Movie = (props) => {
   const { id } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   const [movie, setMovie] = useState({
     _id: null,
@@ -28,105 +30,6 @@ const Movie = (props) => {
   const [canExpandPlot, setCanExpandPlot] = useState(false);
 
   const plotRef = useRef(null);
-
-  const [newReviewText, setNewReviewText] = useState("");
-  const [editingReviewId, setEditingReviewId] = useState(null);
-  const [submitting, setSubmitting] = useState(false);
-  const [reviewError, setReviewError] = useState("");
-
-  const handleStartEdit = (review) => {
-    setEditingReviewId(review._id);
-    setNewReviewText(review.review);
-    setReviewError("");
-    document
-      .getElementById("review-composer")
-      ?.scrollIntoView({ behavior: "smooth", block: "center" });
-  };
-
-  const handleCancelEdit = () => {
-    setEditingReviewId(null);
-    setNewReviewText("");
-    setReviewError("");
-  };
-
-  const handleReviewSubmit = (e) => {
-    e.preventDefault();
-
-    if (!newReviewText.trim()) return;
-
-    setSubmitting(true);
-    setReviewError("");
-
-    if (editingReviewId) {
-      const data = {
-        review_id: editingReviewId,
-        review: newReviewText.trim(),
-        name: props.user.name,
-        email: props.user.email,
-        user_id: props.user._id,
-        movie_id: id,
-      };
-
-      MovieDataService.updateReview(data)
-        .then(() => {
-          setMovie((prevState) => {
-            const updated = prevState.reviews.map((r) =>
-              r._id === editingReviewId
-                ? {
-                    ...r,
-                    review: newReviewText.trim(),
-                    date: new Date().toISOString(),
-                  }
-                : r,
-            );
-
-            updated.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-            return {
-              ...prevState,
-              reviews: updated,
-            };
-          });
-
-          setNewReviewText("");
-          setEditingReviewId(null);
-        })
-        .catch((e) => {
-          console.error(e);
-          setReviewError("Failed to update review. Please try again.");
-        })
-        .finally(() => setSubmitting(false));
-    } else {
-      const data = {
-      review: newReviewText.trim(),
-      name: props.user.name,
-      email: props.user.email,
-      user_id: props.user._id,
-      movie_id: id,
-    };
-
-    MovieDataService.createReview(data)
-      .then(() => {
-        getMovie(id);
-        setNewReviewText("");
-      })
-      .catch((e) => {
-        console.error(e);
-      });
-  };
-
-  const deleteReview = (reviewId) => {
-    MovieDataService.deleteReview(reviewId, props.user._id)
-      .then(() => {
-        setMovie((prevState) => ({
-          ...prevState,
-          reviews: prevState.reviews.filter((r) => r._id !== reviewId),
-        }));
-      })
-      .catch((e) => {
-        console.log(e);
-      });
-  };
 
   const getMovie = (id) => {
     MovieDataService.get(id)
@@ -178,9 +81,123 @@ const Movie = (props) => {
     };
   }, [movie]);
 
+  const deleteReview = (reviewId) => {
+    MovieDataService.deleteReview(reviewId, props.user._id)
+      .then(() => {
+        setMovie((prevState) => ({
+          ...prevState,
+          reviews: prevState.reviews.filter((r) => r._id !== reviewId),
+        }));
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  };
+
+  const [newReviewText, setNewReviewText] = useState("");
+  const [editingReviewId, setEditingReviewId] = useState(null);
+  const [submitting, setSubmitting] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+
+  const handleReviewSubmit = (e) => {
+    e.preventDefault();
+
+    if (!newReviewText.trim()) return;
+
+    setSubmitting(true);
+    setReviewError("");
+
+    if (editingReviewId) {
+      const data = {
+        review_id: editingReviewId,
+        review: newReviewText.trim(),
+        name: props.user.name,
+        email: props.user.email,
+        user_id: props.user._id,
+        movie_id: id,
+      };
+
+      MovieDataService.updateReview(data)
+        .then(() => {
+          setMovie((prevState) => {
+            const updated = prevState.reviews.map((r) =>
+              r._id === editingReviewId
+                ? {
+                    ...r,
+                    review: newReviewText.trim(),
+                    date: new Date().toISOString(),
+                  }
+                : r,
+            );
+
+            updated.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            return {
+              ...prevState,
+              reviews: updated,
+            };
+          });
+
+          setNewReviewText("");
+          setEditingReviewId(null);
+        })
+        .catch((e) => {
+          console.error(e);
+          setReviewError("Failed to update review. Please try again.");
+        })
+        .finally(() => setSubmitting(false));
+    } else {
+      const data = {
+        review: newReviewText.trim(),
+        name: props.user.name,
+        email: props.user.email,
+        user_id: props.user._id,
+        movie_id: id,
+      };
+
+      MovieDataService.createReview(data)
+        .then(() => {
+          getMovie(id);
+          setNewReviewText("");
+        })
+        .catch((e) => {
+          console.error(e);
+          setReviewError("Failed to submit review. Please try again.");
+        })
+        .finally(() => setSubmitting(false));
+    }
+  };
+
+  const handleStartEdit = (review) => {
+    setEditingReviewId(review._id);
+    setNewReviewText(review.review);
+    setReviewError("");
+    document
+      .getElementById("review-composer")
+      ?.scrollIntoView({ behavior: "smooth", block: "center" });
+  };
+
+  const handleCancelEdit = () => {
+    setEditingReviewId(null);
+    setNewReviewText("");
+    setReviewError("");
+  };
+
   return (
     <div className={styles.movieDetail}>
-      <BackLink to="/" />
+      <BackLink
+        to={location.state?.from || "/"}
+        onClick={(e) => {
+          if (
+            !location.state?.from &&
+            window.history.state &&
+            window.history.state.idx > 0
+          ) {
+            e.preventDefault();
+            navigate(-1);
+          }
+        }}
+      />
 
       <div className={styles.header}>
         <div className={styles.posterWrapper}>
