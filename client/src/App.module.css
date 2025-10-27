@@ -5,8 +5,14 @@
 
 .appMain {
   flex: 1;
-  margin-left: 250px;
+  margin-left: var(--sidebar-width);
   padding: 32px;
   min-height: 100vh;
 }
 
+@media (max-width: 768px) {
+  .appMain {
+    margin-left: 0;
+    padding: 16px;
+  }
+}

@@ -14,7 +14,7 @@
 
 .logo {
   padding: 20px 15px;
-  border-bottom: 1px solid var(--color-border-faint);
+  border-bottom: 1px solid var(--color-border-subtle);
 }
 
 .logoImage {
@@ -87,7 +87,8 @@
   transition: color var(--transition-fast);
 }
 
-.navLabel {
+.navLabel,
+.profileDetails {
   flex: 1;
   min-width: 0;
 }
@@ -106,7 +107,7 @@
 
 .footer {
   padding: 14px;
-  border-top: 1px solid var(--color-border-faint);
+  border-top: 1px solid var(--color-border-subtle);
   background: rgba(0, 0, 0, 0.2);
 }
 
@@ -138,11 +139,10 @@
 .profileName {
   font-size: 0.85rem;
   font-weight: 600;
-  color: var(--color-text-bright);
-  white-space: nowrap;
+  color: var(--color-text-soft);
   overflow: hidden;
   text-overflow: ellipsis;
-  display: block;
+  white-space: nowrap;
 }
 
 .logoutBtn {
@@ -153,12 +153,16 @@
   border-radius: 8px;
   cursor: pointer;
   display: flex;
-  align-items: center;
-  justify-content: center;
   transition: all var(--transition-fast);
 }
 
 .logoutBtn:hover {
   background: var(--color-error-muted);
   color: var(--color-error);
+}
+
+@media (max-width: 768px) {
+  .sidebar {
+    display: none;
+  }
 }
