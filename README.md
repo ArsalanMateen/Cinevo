@@ -1,35 +1,27 @@
-# Cinevo API
+# Cinevo
 
-The Cinevo server is an Express and MongoDB API for browsing the sample_mflix movie catalog, retrieving movie details and reviews, authenticating the existing demo user, and creating author-scoped review updates and deletions.
+Cinevo is a movie discovery and review experience for anyone deciding what to watch next. Explore films, compare IMDb ratings, learn more about a story and its cast, and read what other viewers think before making your pick.
 
-## Endpoints
+Whether you have a title in mind or want to browse for something unexpected, Cinevo gives you a few simple ways to start.
 
-| Method | Endpoint | Description |
-|---|---|---|
-| GET | `/health` | Return application health |
-| GET | `/api/v1/movies/` | List movies with pagination, title, genre, and sort controls |
-| GET | `/api/v1/movies/id/:id` | Retrieve a movie with its reviews |
-| GET | `/api/v1/movies/genres` | List available movie genres |
-| POST | `/api/v1/movies/users/login` | Validate an existing user |
-| POST | `/api/v1/movies/reviews` | Create a review |
-| PUT | `/api/v1/movies/reviews` | Update an author-matching review |
-| DELETE | `/api/v1/movies/reviews` | Delete an author-matching review |
+## Discover something worth watching
 
-## Local setup
+Movie cards bring together posters, release years, genres, short plot summaries, and IMDb ratings where available. Choose 10, 15, or 20 movies per page and browse at your own pace.
 
-Install dependencies from the server directory:
+![Cinevo movie catalog with title search, genre filters, and movie cards](./docs/assets/home.png)
 
-```bash
-cd server
-npm install
-```
+## Get to know a film before you choose
 
-Create `server/.env`:
+Open a movie to explore its story, runtime, release year, genres, cast, and directors. IMDb ratings and vote counts add another perspective, while viewer reviews give you individual takes on the film.
 
-```text
-CINEVO_DB_URI=your-mongodb-atlas-connection-string
-CINEVO_NS=sample_mflix
-PORT=8000
-```
+Expand longer plot summaries when you want more detail, then return to your browsing results to keep exploring. Movie information appears when it is available in the catalog.
 
-Start the API with `node index.js`. The repository also contains a Render blueprint; its database URI remains an externally supplied secret.
+![Cinevo movie details with film information and viewer reviews](./docs/assets/movie.png)
+
+## Add your voice
+
+Browse movies and read reviews without an account. When you want to join the conversation, create an account or sign in to write a review directly on a movie's page.
+
+## License
+
+This project is licensed under the [MIT](LICENSE) License.
