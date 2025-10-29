@@ -1,35 +1,68 @@
-# Cinevo API
+# Cinevo: Movie Discovery and Reviews
 
-The Cinevo server is an Express and MongoDB API for browsing the sample_mflix movie catalog, retrieving movie details and reviews, authenticating the existing demo user, and creating author-scoped review updates and deletions.
+A MERN stack movie application built using MongoDB's **sample_mflix** dataset, which contains more than **21,000** movies. 
 
-## Endpoints
+Users can search movies by title, filter them by genre, sort them by rating or release year, and browse the collection using server-side pagination with MongoDB `skip` and `limit`. 
+
+The Express backend follows a **layered architecture** with **routes**, **controllers**, and **repositories**, where routes define the endpoints, controllers handle request and response logic, and repositories manage MongoDB queries.
+
+The movie details page uses MongoDB `$lookup` to fetch the movie and its reviews in a single query. Users can add reviews, while editing and deleting reviews is limited to the user who created them.
+
+![Movie catalog](visuals/home.png)
+
+![Movie details and reviews](visuals/movie.png)
+
+## API Endpoints
 
 | Method | Endpoint | Description |
 |---|---|---|
-| GET | `/health` | Return application health |
-| GET | `/api/v1/movies/` | List movies with pagination, title, genre, and sort controls |
-| GET | `/api/v1/movies/id/:id` | Retrieve a movie with its reviews |
-| GET | `/api/v1/movies/genres` | List available movie genres |
-| POST | `/api/v1/movies/users/login` | Validate an existing user |
+| GET | `/api/v1/movies/` | List movies with pagination, title, genre, and sort filters |
+| GET | `/api/v1/movies/id/:id` | Get a movie and its reviews by `id` |
+| GET | `/api/v1/movies/genres` | Get available movie genres |
 | POST | `/api/v1/movies/reviews` | Create a review |
-| PUT | `/api/v1/movies/reviews` | Update an author-matching review |
-| DELETE | `/api/v1/movies/reviews` | Delete an author-matching review |
+| PUT | `/api/v1/movies/reviews` | Update a review |
+| DELETE | `/api/v1/movies/reviews` | Delete a review |
 
-## Local setup
+## Running it locally
 
-Install dependencies from the server directory:
+You'll need Node 18+ and a MongoDB Atlas cluster loaded with the **sample_mflix** dataset (the free tier is enough).
+
+**Server**
 
 ```bash
 cd server
 npm install
 ```
 
-Create `server/.env`:
+Create **server/.env**:
 
-```text
-CINEVO_DB_URI=your-mongodb-atlas-connection-string
-CINEVO_NS=sample_mflix
+```
+MONGODB_URI=your-mongodb-atlas-connection-string
+MONGODB_NS=sample_mflix
 PORT=8000
 ```
 
-Start the API with `node index.js`. The repository also contains a Render blueprint; its database URI remains an externally supplied secret.
+```bash
+node index.js
+```
+
+**Client**
+
+```bash
+cd client
+npm install
+```
+
+Create **client/.env**:
+
+```
+VITE_API_URL=http://localhost:8000
+```
+
+```bash
+npm start
+```
+
+## License
+
+This project is licensed under the [MIT](LICENSE) License.
